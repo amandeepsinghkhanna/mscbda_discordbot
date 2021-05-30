@@ -16,6 +16,7 @@ from datetime import datetime
 # Importing external python modules:
 import discord
 import requests
+import pandas as pd
 from tqdm import tqdm
 
 # Importing user-defined python modules:
@@ -39,6 +40,17 @@ class ExtractMemes(object):
 		self.required_media = required_media
 		self.max_requests = max_requests
 		self.req_delay = req_delay
+		self.required_keys = [
+			 "subreddit_name_prefixed",
+			 "upvote_ratio",
+			 "ups",
+			 "downs",
+			 "over_18",
+			 "is_video",
+			 "url",
+			 "permalink",
+			 "title"
+		]
 
 
 	def make_requests(self, url):
@@ -62,9 +74,70 @@ class ExtractMemes(object):
 			return None
 
 
-	def clean_response(self):
-		pass
+	def clean_response(self, request_response):
+		cleaned_responses = []
+		try:
+			posts_lst = request_response["data"]["children"]
+			if len(posts_lst) > 0:
+				for post in posts_lst:
+					if isinstance(post, dict):
+						if "data" in list(post.keys()):
+							post = post["data"]
+							if (
+								len(
+									set(post.keys())
+									.intersection(
+										set(self.required_keys)
+									)
+								) == len(self.required_keys)
+							):
+								temp_post = {}
+								for required_key in self.required_keys:
+									temp_post[required_key] = post[required_key]
+								cleaned_responses.append(temp_post)
+								del temp_post
+							else:
+								continue
+						else:
+							continue
+					else:
+						continue
+				return cleaned_responses 		
+			else:
+				return None
+		except Exception as incorrect_response_type:
+			return None
 
 
 	def get_responses(self):
-		pass
+		subreddit_responses = []
+		for subreddit_url in tqdm(self.subreddit_urls):
+			subreddit_response = self.make_requests(url=subreddit_url)
+			if isinstance(subreddit_response, dict):
+				subreddit_response_cleaned = self.clean_response(
+					subreddit_response
+				)
+				if subreddit_response_cleaned != None:
+					subreddit_responses.append(subreddit_response_cleaned)
+			else:
+				continue
+		if len(subreddit_responses) > 0:
+			subreddit_responses = [
+				inner_lst 
+				for outer_lst in subreddit_responses 
+				for inner_lst in outer_lst
+			]
+			subreddit_responses_df = pd.DataFrame(subreddit_responses)
+			subreddit_responses_df["media_format"] = (
+				subreddit_responses_df["url"].apply(lambda x: x[-4:])
+				.str.lower()
+			)
+			subreddit_responses_df = (
+				subreddit_responses_df[
+					subreddit_responses_df["media_format"].isin(self.required_media)
+				]
+			)
+			subreddit_responses_df["shared_flag"] = False
+			return subreddit_responses_df
+		else:
+			return None

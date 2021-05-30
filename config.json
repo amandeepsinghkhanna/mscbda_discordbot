@@ -3,7 +3,7 @@
 	"discord_token_production": "ODQ2MDUyNzczNjA5ODY1Mjk2.YKp6DA.18YcjTFgi_oJLkdTiCiObL7zr_o",
 	"discord_channel_id_development": 846306281509748736,
 	"discord_channel_id_production": 818338446958526475,
-	"required_media": [".jpg", ".png"],
+	"required_media": [".jpg", ".jpeg", ".png"],
 	"max_request_attempts": 5,
 	"db_name": "memes.db",
 	"subreddit_urls": [
