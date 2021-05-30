@@ -1,0 +1,29 @@
+{
+	"discord_token_development": "ODQ2MDg0NDU2ODMzMzUxNjgx.YKqXjQ.fGukA9Gaj7PtQxG8p2Mpt1M1RQE",
+	"discord_token_production": "ODQ2MDUyNzczNjA5ODY1Mjk2.YKp6DA.18YcjTFgi_oJLkdTiCiObL7zr_o",
+	"discord_channel_id_development": 846306281509748736,
+	"discord_channel_id_production": 818338446958526475,
+	"required_media": [".jpg", ".png"],
+	"max_request_attempts": 5,
+	"db_name": "memes.db",
+	"subreddit_urls": [
+		// r/wholesomememes
+    	"https://www.reddit.com/r/wholesomememes/top.json?limit=100&t=3days",
+    	// r/funny
+    	"https://www.reddit.com/r/funny/top.json?limit=100&t=3days",
+    	// r/AdviceAnimals
+    	"https://www.reddit.com/r/AdviceAnimals/top.json?limit=100&t=3days",
+    	// r/memes
+    	"https://www.reddit.com/r/memes/top.json?limit=100&t=3days",
+    	// r/ProgrammerHumor
+    	"https://www.reddit.com/r/ProgrammerHumor/top.json?limit=100&t=3days",
+    	// r/MemeEconomy
+    	"https://www.reddit.com/r/MemeEconomy/top.json?limit=100&t=3days",
+    	// r/dankmemes
+    	"https://www.reddit.com/r/dankmemes/top.json?limit=100&t=3days",
+    	// r/terriblefacebookmemes
+    	"https://www.reddit.com/r/terriblefacebookmemes/top.json?limit=100&t=3days",
+    	// r/IndianDankMemes
+    	"https://www.reddit.com/r/IndianDankMemes/top.json?limit=100&t=3days"
+	]
+}
