@@ -1,0 +1,87 @@
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import Normalizer
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+class VectorizeDocuments(object):
+    
+    def __init__(
+        self, 
+        case_documents, 
+        case_numbers, 
+        methodology, 
+        ngram_range=(1, 1),
+        max_features=None,
+        max_df=1.0,
+        min_df=1,
+        n_components=100,
+        random_sate=1024,
+        bert_model_name=""
+    ):
+        self.case_documents = case_documents
+        self.case_numbers = case_numbers
+        self.ngram_range = ngram_range
+        self.max_df = max_df
+        self.min_df = min_df
+        self.max_features = max_features
+        self.n_components = self.n_components
+        self.random_sate = self.random_sate
+        self.bert_model_name = bert_model_name
+        self.bert_model_name = bert_model_name
+        if methodology in ["LSA", "BERT"]:
+            self.methodology = methodology
+
+    def latent_semantic_analysis(self):
+        tfidf_vectorizer = TfidfVectorizer(
+            ngram_range=self.ngram_range, 
+            max_df=self.max_df,
+            min_df=self.min_df,
+            max_features=self.max_features
+        ).fit(self.case_documents)
+        tfidf_matrix = tfidf_vectorizer.transform(self.case_documents)
+        svd_model = TruncatedSVD(
+            algorithm="arpack", 
+            random_sate=self.random_sate
+        ).fit(tfidf_matrix)
+        lsa_vectors = svd_model.transform(tfidf_matrix)
+        lsa_vectors = Normalizer.fit_transform(lsa_vectors)
+        lsa_vectors = pd.DataFrame(lsa_vectors)
+        lsa_vectors["CASE_NO"] = self.case_numbers
+        return tfidf_vectorizer, svd_model, lsa_vectors
+
+    def bert(self):
+        bert_model = SentenceTransformer(self.bert_model_name)
+        bert_embeddings = bert_model.encode(self.case_documents)
+        bert_embeddings = Normalizer.fit_transform(bert_embeddings)
+        bert_embeddings = pd.DataFrame(bert_embeddings)
+        bert_embeddings["CASE_NO"] = self.case_numbers
+        return bert_embeddings
+
+    def vectorize_docs(self):
+        if methodology == "LSA":
+            (tfidf_vectorizer, svd_model, lsa_vectors) = self.latent_semantic_analysis()
+            return tfidf_vectorizer, svd_model, lsa_vectors
+        elif methodology == "BERT":
+            bert_embeddings = self.bert()
+            return bert_embeddings
+
+def compute_similarity(filtered_reference=None, all_cases, vectorized_df, reference_col="CASE_NO"):
+    cols = [colname for colname in vectorized_df if colname != reference_col]
+    if filtered_reference == None:
+        similarity_matrix = (
+            np.asarray(vectorized_df[cols].values) * np.asarray(vectorized_df[cols].values.T)
+        )
+        similarity_matrix = pd.DataFrame(
+            similarity_matrix, 
+            columns=vectorized_df[reference_col].to_list(),
+            index=vectorized_df[reference_col].to_list()
+        )
+        return similarity_matrix
+    else:
+        similarity_matrix = (
+            np.asarray(vectorized_df[cols][
+                vectorized_df[reference_col].isin(filtered_reference)
+            ]) * np.asarray(vectorized_df[cols].values.T)
+        )
+        return similarity_matrix
