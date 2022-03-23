@@ -2,6 +2,7 @@
 import time
 from datetime import datetime
 
+
 # Importing external python modules:
 import requests
 import pandas as pd
@@ -78,7 +79,7 @@ class GetRedditMemes(object):
         else:
             return None
 
-    def get_meme_links(self):
+    def get_redditmeme_links(self):
         meme_links = []
         for subreddit_url in tqdm(self.subreddit_urls):
             subreddit_response = self.make_requests(url=subreddit_url)
